@@ -1,15 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class runner : MonoBehaviour
 {
     // Start is called before the first frame update
 	
 	public float speed;
-	public float leftRightSpeed;
+	//public float leftRightSpeed;
 	public Camera playerCamera;
+
+	private Animator animation_controller;
+    public float max_velocity;   
 	
+	public GameObject LeftTyper;
+    public GameObject ForwardTyper;
+    public GameObject RightTyper;
+    private int movement; //1 is forward, 2 is left, 3 is right
+
 	public bool rightSided = false;
 	public bool leftSided = false;
 	
@@ -34,16 +43,42 @@ public class runner : MonoBehaviour
     void Start()
     {
         playerBody = GetComponent<Rigidbody>();
+
+        max_velocity = 0.7f;
+        speed = 0.0f;
+        movement = 1;
     }
 
     // Update is called once per frame
     void Update()
     {
-		//forward movement with corrections
-		transform.eulerAngles = zeroing;
-        transform.position = transform.position + Vector3.forward * Time.deltaTime * speed;
-		transform.position = new Vector3(transform.position.x, 0.614f, transform.position.z);
-		playerBody.velocity = zeroing;
+
+		if (ForwardTyper.GetComponent<TyperForward>().trigger == 1)
+        {
+            movement = 1;
+        }
+        else if (LeftTyper.GetComponent<TyperLeft>().trigger == 1)
+        {
+            movement = 2;
+        }
+        else if (RightTyper.GetComponent<TyperRight>().trigger == 1)
+        {
+            movement = 3;
+        }
+
+        //Move forward
+        if(movement == 1)
+        {
+            speed += 0.005f;
+            if(speed > max_velocity)
+            {
+                speed = max_velocity;
+            }
+            transform.eulerAngles = zeroing;
+            transform.position = transform.position + Vector3.forward * Time.deltaTime * speed;
+			transform.position = new Vector3(transform.position.x, 0.614f, transform.position.z);
+			playerBody.velocity = zeroing;
+        }
 		
 		//camera recenter
 		if ((this.gameObject.transform.position.x < LevelBoundry.rightSideCam) && (this.gameObject.transform.position.x > LevelBoundry.leftSideCam)) {
@@ -53,25 +88,50 @@ public class runner : MonoBehaviour
 		} 
 
 		//offset camera so it doesnt clip into the walls.
-		if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) {
+		if (movement == 2) {
 			if (this.gameObject.transform.position.x > LevelBoundry.leftSide) {
-				transform.position = transform.position + (Vector3.left * Time.deltaTime * leftRightSpeed);
+				speed += 0.005f;
+            	if(speed > max_velocity)
+            	{
+                	speed = max_velocity;
+            	}
+				transform.eulerAngles = zeroing;
+				transform.position = transform.position + (Vector3.left * Time.deltaTime * speed) + (Vector3.forward * Time.deltaTime * speed);
+				transform.position = new Vector3(transform.position.x, 0.614f, transform.position.z);
+				playerBody.velocity = zeroing;
 				if (this.gameObject.transform.position.x < LevelBoundry.leftSideCam) {
-					playerCamera.transform.Translate(Vector3.right * Time.deltaTime * leftRightSpeed);
+					playerCamera.transform.Translate(Vector3.right * Time.deltaTime * speed);
 					leftSided = true;
 				}
 
 			}
+			else
+			{
+				LeftTyper.GetComponent<TyperLeft>().trigger = 0;
+				ForwardTyper.GetComponent<TyperForward>().trigger = 1;
+			}
 		}
 		//offset camera so it doesnt clip into the walls.
-		if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) {
+		if (movement == 3) {
 			if (this.gameObject.transform.position.x < LevelBoundry.rightSide) {
-				transform.position = transform.position + (Vector3.right * Time.deltaTime * leftRightSpeed);
+				speed += 0.005f;
+            	if(speed > max_velocity)
+            	{
+                	speed = max_velocity;
+            	}
+				transform.eulerAngles = zeroing;
+				transform.position = transform.position + (Vector3.right * Time.deltaTime * speed) + (Vector3.forward * Time.deltaTime * speed);
+				transform.position = new Vector3(transform.position.x, 0.614f, transform.position.z);
+				playerBody.velocity = zeroing;
 				if (this.gameObject.transform.position.x > LevelBoundry.rightSideCam) {
-					playerCamera.transform.Translate(Vector3.left * Time.deltaTime * leftRightSpeed);
+					playerCamera.transform.Translate(Vector3.left * Time.deltaTime * speed);
 					rightSided = true;
-				}
-				
+				}				
+			}
+			else
+			{
+				RightTyper.GetComponent<TyperRight>().trigger = 0;
+				ForwardTyper.GetComponent<TyperForward>().trigger = 1;
 			}
 		}		
 			
