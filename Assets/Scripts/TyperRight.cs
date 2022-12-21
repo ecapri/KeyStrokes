@@ -24,7 +24,8 @@ public class TyperRight : MonoBehaviour
         var randomIndex = random.Next(0, lines.Length);
         currentWord = lines[randomIndex];
 
-        while(currentWord == ForwardTyper.GetComponent<TyperForward>().currentWord || currentWord == LeftTyper.GetComponent<TyperLeft>().currentWord)
+        while(currentWord == ForwardTyper.GetComponent<TyperForward>().currentWord || currentWord == LeftTyper.GetComponent<TyperLeft>().currentWord
+        || currentWord.Contains(ForwardTyper.GetComponent<TyperForward>().currentWord) || currentWord.Contains(LeftTyper.GetComponent<TyperLeft>().currentWord))
         {
             randomIndex = random.Next(0, lines.Length);
             currentWord = lines[randomIndex];
@@ -42,7 +43,7 @@ public class TyperRight : MonoBehaviour
     {
         remainingWord = newString;
         if(remainingWord.Length != 0){
-            string display = currentWord.Replace(remainingWord,"");
+            string display = currentWord.Remove(currentWord.Length - remainingWord.Length);
             wordOutput.text = "<color=green>"+ display +"</color>" + remainingWord;
         }
     }
@@ -87,7 +88,8 @@ public class TyperRight : MonoBehaviour
                 var randomIndex = random.Next(0, lines.Length);
                 currentWord = lines[randomIndex];
 
-                while(currentWord == ForwardTyper.GetComponent<TyperForward>().currentWord || currentWord == LeftTyper.GetComponent<TyperLeft>().currentWord)
+                while(currentWord == ForwardTyper.GetComponent<TyperForward>().currentWord || currentWord == LeftTyper.GetComponent<TyperLeft>().currentWord 
+                || currentWord.Contains(ForwardTyper.GetComponent<TyperForward>().currentWord) || currentWord.Contains(LeftTyper.GetComponent<TyperLeft>().currentWord))
                 {
                     randomIndex = random.Next(0, lines.Length);
                     currentWord = lines[randomIndex];

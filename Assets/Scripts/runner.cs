@@ -160,7 +160,7 @@ public class runner : MonoBehaviour
 			audioData.PlayOneShot(chest);
 			if (bepis == 1) {
 				Debug.Log("Speed Boost");
-				speed = speed + 0.5f;
+				max_velocity = max_velocity + 0.5f;
 			} else if (bepis == 2) {
 				Debug.Log("Health Potion");
 				if (health < 3) {
