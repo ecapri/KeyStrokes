@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,6 +10,8 @@ public class runner : MonoBehaviour
     // Start is called before the first frame update
 	
 	public float speed;
+	private int score;
+	private int typedScore;
 	//public float leftRightSpeed;
 	public Camera playerCamera;
 
@@ -22,11 +26,15 @@ public class runner : MonoBehaviour
 	public bool rightSided = false;
 	public bool leftSided = false;
 	
-	Vector3 camHome = new Vector3(0, 1.29f, -3.32f);
+	Vector3 camHome = new Vector3(0, 2.078f, -3.32f);
 	Rigidbody playerBody;
 	Vector3 forwardMove;
 	Vector3 sideMove;
 	Vector3 zeroing;
+	public GameObject character1;
+	public GameObject character2;
+	public GameObject character3;
+	private GameObject prefab;
 	
 	public int health = 3;
 	
@@ -39,20 +47,29 @@ public class runner : MonoBehaviour
 	public AudioClip sizzle;
 	public AudioClip concrete;
 	public AudioSource musicMan;
+	public AudioClip bone_crack;
 	
 	public Text lifeText;
 	public Text shieldText;
 	public Text speedText;
 	public Text gameoverText;
 	public Text chestText;
+	public Text scoreText;
+
+	public Canvas menu;
+	public bool start_game = false;
+	public bool first_entry = true;
 
     void Start()
     {
-        playerBody = GetComponent<Rigidbody>();
-
+		playerBody = GetComponent<Rigidbody>();
+		animation_controller = GetComponent<Animator>();
+		typedScore = 0;
+		score = 0;
         max_velocity = 2.0f;
         speed = 0.0f;
         movement = 1;
+		health = 3;
 
 		lifeText.text = "<color=green>Health: " + health.ToString() + "</color>";
 		shieldText.text = "<color=red>Shield: No</color>";
@@ -63,18 +80,42 @@ public class runner : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+		if (!start_game) {
+			return;
+		}
+/* 		if (first_entry) {
+			first_entry = false;
+ 			int character = menu.GetComponent<StartMenu>().character_prefab;
 
+			// load character
+			if (character == 1) {
+				prefab = character1;
+			} else if (character == 2) {
+				prefab = character2;
+			} else {
+				prefab = character3;
+			}
+			GameObject player = Instantiate(prefab);
+			player.transform.parent = transform;
+			player.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f); 
+			
+		} */
+
+		score = (((int)this.gameObject.transform.position.z) * 10);
 		if (ForwardTyper.GetComponent<TyperForward>().trigger == 1)
         {
             movement = 1;
+			//typedScore = typedScore + 50;
         }
         else if (LeftTyper.GetComponent<TyperLeft>().trigger == 1)
         {
             movement = 2;
+			//typedScore = typedScore + 50;
         }
         else if (RightTyper.GetComponent<TyperRight>().trigger == 1)
         {
             movement = 3;
+			//typedScore = typedScore + 50;
         }
 
         //Move forward
@@ -110,7 +151,7 @@ public class runner : MonoBehaviour
 				transform.position = transform.position + (Vector3.left * Time.deltaTime * speed * 0.5f) + (Vector3.forward * Time.deltaTime * speed);
 				transform.position = new Vector3(transform.position.x, 0.614f, transform.position.z);
 				playerBody.velocity = zeroing;
-				if (this.gameObject.transform.position.x < LevelBoundry.leftSideCam) {
+				if (this.gameObject.transform.position.x < LevelBoundry.leftSideCam && !leftSided) {
 					playerCamera.transform.Translate(Vector3.right * Time.deltaTime * speed);
 					leftSided = true;
 				}
@@ -134,7 +175,7 @@ public class runner : MonoBehaviour
 				transform.position = transform.position + (Vector3.right * Time.deltaTime * speed * 0.5f) + (Vector3.forward * Time.deltaTime * speed);
 				transform.position = new Vector3(transform.position.x, 0.614f, transform.position.z);
 				playerBody.velocity = zeroing;
-				if (this.gameObject.transform.position.x > LevelBoundry.rightSideCam) {
+				if (this.gameObject.transform.position.x > LevelBoundry.rightSideCam && !rightSided) {
 					playerCamera.transform.Translate(Vector3.left * Time.deltaTime * speed);
 					rightSided = true;
 				}				
@@ -167,14 +208,22 @@ public class runner : MonoBehaviour
 			shieldText.text = "<color=red>Shield: No</color>";
 		}
 		speedText.text = "<color=green>Speed: " + speed.ToString("F2") + "</color>";
+		scoreText.text = "Score: " + score.ToString();
+
 
 		//Game Over
 		if(health == 0) 
 		{
+			animation_controller.SetBool("death", true);
 			gameoverText.text = "Game Over";
 			speed = 0f;
+			// write new score
+			string[] lines = { score.ToString() };
+            File.WriteAllLines(@"Assets\BestScore.txt", lines);
+			StartCoroutine(startOver(5f));			
+			return;
 		}
-		
+
     }
 	
 	void OnCollisionEnter(Collision collision)
@@ -188,6 +237,7 @@ public class runner : MonoBehaviour
 			if (bepis == 1) {
 				Debug.Log("Speed Boost");
 				max_velocity = max_velocity + 0.5f;
+				animation_controller.SetBool("speedBoost", true);
 			} else if (bepis == 2) {
 				Debug.Log("Health Potion");
 				if (health < 3) {
@@ -205,6 +255,7 @@ public class runner : MonoBehaviour
 				audioData.PlayOneShot(metalThonk);
 				isShielded = false;
 			} else {
+				animation_controller.SetBool("hit", true);
 				audioData.PlayOneShot(wood);
 				health = health - 1;
 			}
@@ -217,6 +268,7 @@ public class runner : MonoBehaviour
 				audioData.PlayOneShot(metalThonk);
 				isShielded = false;
 			} else {
+				animation_controller.SetBool("hit", true);
 				audioData.PlayOneShot(concrete);
 				health = health - 1;
 			}
@@ -229,12 +281,26 @@ public class runner : MonoBehaviour
 				audioData.PlayOneShot(metalThonk);
 				isShielded = false;
 			} else {
+				animation_controller.SetBool("hit", true);
 				audioData.PlayOneShot(concrete);
 				health = health - 1;
 			}
 			canCollide = false;
 			StartCoroutine(wait(0.5f));
+		} else if (collision.gameObject.name == "SkeletonWarrior(Clone)" && canCollide) {
+			if (isShielded) {
+				Debug.Log("Shield Used!");
+				audioData.PlayOneShot(metalThonk);
+				isShielded = false;
+			} else {
+				animation_controller.SetBool("hit", true);
+				audioData.PlayOneShot(bone_crack);
+				health = health - 1;
+			}
+			canCollide = false;
+			StartCoroutine(wait(0.5f));
 		}
+		animation_controller.SetBool("hit", false);
 
         /* copy this for more interactions
         if (collision.gameObject.tag == "MyGameObjectTag")
@@ -267,5 +333,10 @@ public class runner : MonoBehaviour
         yield return new WaitForSeconds(sec);
         canCollide = true;
     }
+
+	IEnumerator startOver(float sec) {
+		yield return new WaitForSeconds(sec);
+		SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+	}
 	
 }
