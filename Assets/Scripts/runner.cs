@@ -40,13 +40,24 @@ public class runner : MonoBehaviour
 	public AudioClip concrete;
 	public AudioSource musicMan;
 	
+	public Text lifeText;
+	public Text shieldText;
+	public Text speedText;
+	public Text gameoverText;
+	public Text chestText;
+
     void Start()
     {
         playerBody = GetComponent<Rigidbody>();
 
-        max_velocity = 0.7f;
+        max_velocity = 1.0f;
         speed = 0.0f;
         movement = 1;
+
+		lifeText.text = "<color=green>Health: " + health.ToString() + "</color>";
+		shieldText.text = "<color=red>Shield: No</color>";
+		speedText.text = "<color=green>Speed: " + speed.ToString() + "</color>";
+		gameoverText.text = "";
     }
 
     // Update is called once per frame
@@ -148,6 +159,22 @@ public class runner : MonoBehaviour
 			playerCamera.transform.position = new Vector3(0, 1.29f, -3.32f);
 		}
 		*/
+
+		lifeText.text = "<color=green>Health: " + health.ToString() + "</color>";
+		if (isShielded) {
+			shieldText.text = "<color=green>Shield: Yes</color>";
+		} else {
+			shieldText.text = "<color=red>Shield: No</color>";
+		}
+		speedText.text = "<color=green>Speed: " + speed.ToString() + "</color>";
+
+		//Game Over
+		if(health == 0) 
+		{
+			gameoverText.text = "Game Over";
+			speed = 0f;
+		}
+		
     }
 	
 	void OnCollisionEnter(Collision collision)
