@@ -9,3 +9,23 @@ There is an educational component, with the target audience being anyone wanting
 
 ## Engine
 The Unity Engine will be used for this project.
+
+# Contributions
+
+## Donald Hurld
+All Environment design: Floor, walls, shields, flags (and physics), torches (particle emitters), smoke wall (hides propogation), tutorial sign, all lighting.
+Sounds for objects, background music.
+Non-Enemy Obstacles: Columns 1 and 2, fire, barrel, chest (and all associated sounds).
+Menu: Titlecard video
+All of MapPropogate.cs, LevelBoundry.cs, and TutorialSign.cs
+runner.cs:77-80(also used:98-101,122-125),83-88,(92/102, 116/126 boundry checks), all from line 180 until the end.
+
+## Eric Capri
+Character: All 6 player models, their walk and run animations.
+Menu: Everything minus the titlecard
+NPCs: Skeleton, Person, Dragon (models, animations).
+
+## Hongxiang Wang
+Character UI
+All of AI.cs, TyperForward.cs, TyperLeft.cs, and TyperRight.cs, type to control mechanic.
+runner.cs:56-76,93-97,108-112,117-121,129-134, 163-175.

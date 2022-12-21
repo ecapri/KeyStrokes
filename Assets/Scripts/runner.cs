@@ -50,13 +50,13 @@ public class runner : MonoBehaviour
     {
         playerBody = GetComponent<Rigidbody>();
 
-        max_velocity = 1.0f;
+        max_velocity = 2.0f;
         speed = 0.0f;
         movement = 1;
 
 		lifeText.text = "<color=green>Health: " + health.ToString() + "</color>";
 		shieldText.text = "<color=red>Shield: No</color>";
-		speedText.text = "<color=green>Speed: " + speed.ToString() + "</color>";
+		speedText.text = "<color=green>Speed: " + speed.ToString("F2") + "</color>";
 		gameoverText.text = "";
     }
 
@@ -107,7 +107,7 @@ public class runner : MonoBehaviour
                 	speed = max_velocity;
             	}
 				transform.eulerAngles = zeroing;
-				transform.position = transform.position + (Vector3.left * Time.deltaTime * speed) + (Vector3.forward * Time.deltaTime * speed);
+				transform.position = transform.position + (Vector3.left * Time.deltaTime * speed * 0.5f) + (Vector3.forward * Time.deltaTime * speed);
 				transform.position = new Vector3(transform.position.x, 0.614f, transform.position.z);
 				playerBody.velocity = zeroing;
 				if (this.gameObject.transform.position.x < LevelBoundry.leftSideCam) {
@@ -131,7 +131,7 @@ public class runner : MonoBehaviour
                 	speed = max_velocity;
             	}
 				transform.eulerAngles = zeroing;
-				transform.position = transform.position + (Vector3.right * Time.deltaTime * speed) + (Vector3.forward * Time.deltaTime * speed);
+				transform.position = transform.position + (Vector3.right * Time.deltaTime * speed * 0.5f) + (Vector3.forward * Time.deltaTime * speed);
 				transform.position = new Vector3(transform.position.x, 0.614f, transform.position.z);
 				playerBody.velocity = zeroing;
 				if (this.gameObject.transform.position.x > LevelBoundry.rightSideCam) {
@@ -166,7 +166,7 @@ public class runner : MonoBehaviour
 		} else {
 			shieldText.text = "<color=red>Shield: No</color>";
 		}
-		speedText.text = "<color=green>Speed: " + speed.ToString() + "</color>";
+		speedText.text = "<color=green>Speed: " + speed.ToString("F2") + "</color>";
 
 		//Game Over
 		if(health == 0) 
